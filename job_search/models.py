@@ -1,5 +1,8 @@
-from django.db import models
+import datetime
 
+from django.db import models
+import os
+os.environ['DJANGO_SETTINGS_MODULE'] = 'conf.settings'
 # Create your models here.
 
 
