@@ -25,5 +25,5 @@ class Vacancy(models.Model):
     salary_max = models.IntegerField()
     published_at = models.DateTimeField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="vacancies")
-    specialty = models.ManyToManyField(Speciality, related_name="vacancies")
+    specialty = models.ForeignKey(Speciality, on_delete=models.CASCADE, related_name="vacancies")
 
