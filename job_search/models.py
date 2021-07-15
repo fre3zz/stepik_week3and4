@@ -29,4 +29,3 @@ class Vacancy(models.Model):
     published_at = models.DateTimeField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="vacancies")
     specialty = models.ForeignKey(Speciality, on_delete=models.CASCADE, related_name="vacancies")
-

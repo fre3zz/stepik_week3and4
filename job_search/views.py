@@ -9,8 +9,8 @@ class VacancyView(TemplateView):
     template_name = 'job_search/vacancy.html'
     def get_context_data(self, **kwargs):
         context = super(VacancyView, self).get_context_data(**kwargs)
-        context['vacancy'] = get_object_or_404(Vacancy, pk=context['pk'])
-        print(context)
+        context['vacancy'] = get_object_or_404(Vacancy, pk=context['pk'])  # объект по ключу из url
+        context['vacancies_count'] = Vacancy.objects.count()  # передается для перехода на следующую вакансию
         return context
 
 

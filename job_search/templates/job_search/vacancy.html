@@ -7,9 +7,9 @@
     <div class="row mt-5">
       <div class="col-12 col-lg-2">
         <div class="pl-3 mb-5">
-          <p><a href="#">Назад</a></p>
-            <p><a href="#">Следующая</a></p>
-            <p><a href="#">Предыдущая</a></p>
+          <p><a href="{{ request.META.HTTP_REFERER }}">Назад</a></p>
+            <p><a href="{% if vacancy.pk|add:1 > vacancies_count  %}{% url 'vacancy' 1 %}{% else %}{% url 'vacancy' pk|add:1 %}{% endif %}">Следующая</a></p>
+            <p><a href="{% if vacancy.pk|add:-1 < 1  %}{% url 'vacancy' vacancies_count %}{% else %}{% url 'vacancy' pk|add:-1 %}{% endif %}">Предыдущая</a></p>
         </div>
       </div>
       <div class="col-12 col-lg-8">
