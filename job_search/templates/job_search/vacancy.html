@@ -18,7 +18,7 @@
             <p class="m-0 pl-3">{{ vacancy.salary_min|thous_sep }} – {{ vacancy.salary_max|thous_sep }} Р</p>
           </div>
           <p class="mt-2">{{ vacancy.skills|switch_symb:",& •" }}</p>
-          <p class="text-muted mb-4">{{ vacancy.company.name|capfirst }} ({{ vacancy.company.employee_count|ru_pluralize:"человек,человека,человеков" }}), {{ vacancy.company.location }}Рязань или удаленно</p>
+          <p class="text-muted mb-4">{{ vacancy.company.name|capfirst }} ({{ vacancy.company.employee_count|ru_pluralize:"человек,человека,человеков" }}), {{ vacancy.company.location }} Рязань или удаленно</p>
           <div style="line-height: 1.8;">
             <p>Финтех компаниявходит в международную группу  и занимается развитием факторингового бизнеса. В связи с расширением штата, мы хотим усилить нашу команду Backend-разработчиком, для работы над улучшением продуктов компании.</p>
             <p><b>Мы предлагаем: </b><br>

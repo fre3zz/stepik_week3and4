@@ -13,7 +13,9 @@ class Command(BaseCommand):
                 id=int(company['id']),
                 name=company['title'],
                 logo=company['logo'],
-                employee_count=company['employee_count']
+                location=company['location'],
+                employee_count=company['employee_count'],
+                description=company['description']
             )
 
         for speciality in specialties:
