@@ -1,5 +1,7 @@
 {% extends 'job_search/base.html' %}
-{%  load thous_sep %}
+{% load thous_sep %}
+{% load switch_symb %}
+{% load ru_pluralize %}
 {% block content %}
   <main class="container mt-3 pb-5">
     <div class="row mt-5">
@@ -12,11 +14,11 @@
         <section class="pl-3">
           <a href="#"><img src="https://place-hold.it/130x80" width="130" height="80" alt=""></a>
           <div class="d-flex align-items-baseline align-content-baseline">
-            <h1 class="h2 mt-4 font-weight-bold" >Backend-разработчик{{ vacancy.title }}</h1>
+            <h1 class="h2 mt-4 font-weight-bold" >{{ vacancy.title }}</h1>
             <p class="m-0 pl-3">{{ vacancy.salary_min|thous_sep }} – {{ vacancy.salary_max|thous_sep }} Р</p>
           </div>
-          <p class="mt-2">Бэкенд • Средний (Middle) • PHP • PostgreSQL • MySQL • Node.js • Laravel • Symfony • Yii framework • Sails.js • Rabbitmq • Kafka</p>
-          <p class="text-muted mb-4">Primal Assault (15-30 человек), Рязань или удаленно</p>
+          <p class="mt-2">{{ vacancy.skills|switch_symb:",& •" }}</p>
+          <p class="text-muted mb-4">{{ vacancy.company.name|capfirst }} ({{ vacancy.company.employee_count|ru_pluralize:"человек,человека,человеков" }}), {{ vacancy.company.location }}Рязань или удаленно</p>
           <div style="line-height: 1.8;">
             <p>Финтех компаниявходит в международную группу  и занимается развитием факторингового бизнеса. В связи с расширением штата, мы хотим усилить нашу команду Backend-разработчиком, для работы над улучшением продуктов компании.</p>
             <p><b>Мы предлагаем: </b><br>
