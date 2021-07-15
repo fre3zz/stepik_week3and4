@@ -32,7 +32,7 @@ class Command(BaseCommand):
                 company_id=int(job['company']),
                 salary_min=int(job['salary_from']),
                 salary_max=int(job['salary_to']),
-                published_at=datetime.date.fromisoformat(job['posted']),
+                published_at=datetime.date.fromisoformat(job['posted'], locale='ru_RU'),
                 skills=job['skills'],
                 description=job['description']
             )
