@@ -5,6 +5,7 @@ from django.core.management import BaseCommand
 from job_search.models import Company, Speciality, Vacancy
 from job_search.data import companies, specialties, jobs
 
+
 class Command(BaseCommand):
     def handle(self, *args, **options):
 

@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 # Create your views here.
 from django.views.generic import TemplateView, ListView
 
@@ -25,12 +26,26 @@ class MainView(TemplateView):
         return context
 
 
-class VacanciesView(TemplateView):
+class VacanciesView(ListView):
     template_name = 'job_search/vacancies.html'
+    model = Vacancy
+    context_object_name = 'vacancies'
+
+    def get_queryset(self):
+
+        if self.kwargs:  # если урл что-то передает
+            category = self.kwargs['category']
+            if Speciality.objects.filter(code=category).count() > 0:
+                return Vacancy.objects.filter(specialty__code=category)   # поиск по свециализации
+            else:
+                raise Http404
+        else:  # вывод всех вакансий
+            return Vacancy.objects.all()
 
 
 class CompanyView(TemplateView):
     template_name = 'job_search/company.html'
+
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
         context['company'] = get_object_or_404(Company, pk=context['company_pk'])  # объект по ключу из url
