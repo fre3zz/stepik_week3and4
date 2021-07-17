@@ -1,6 +1,6 @@
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError
 from django.shortcuts import get_object_or_404
-# Create your views here.
+
 from django.views.generic import TemplateView, ListView
 
 from .models import Vacancy, Company, Speciality
@@ -32,29 +32,35 @@ class VacanciesView(ListView):
     context_object_name = 'vacancies'
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        # Тайтл в темплэйте. Если все вакансии - "все вакансии", или по категориям
         context = super(VacanciesView, self).get_context_data(**kwargs)
-        if self.kwargs:
-            try:
-                category = Speciality.objects.get(code=self.kwargs['category'])
-                context['title'] = category.title
-            except Speciality.DoesNotExist:
-                raise Http404
-        else:
-            context['title'] = "Все вакансии"
+        context['title'] = "Все вакансии"  # Тайтл в темплэйт
+        return context
+
+
+class VacanciesByCategoryView(ListView):
+    # вакансии по специализации
+    template_name = 'job_search/vacancies.html'
+    model = Vacancy
+    context_object_name = 'vacancies'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        # Тайтл в темплэйте. Если все вакансии - "все вакансии", или по категориям
+        context = super(VacanciesByCategoryView, self).get_context_data(**kwargs)
+        try:
+            category = Speciality.objects.get(code=self.kwargs['category'])
+            context['title'] = category.title
+        except Speciality.DoesNotExist:
+            raise Http404
         print(context)
         return context
 
     def get_queryset(self):
-
-        if self.kwargs:  # если урл что-то передает
+        try:
             category = self.kwargs['category']
-            if Speciality.objects.filter(code=category).count() > 0:  # наличие специализации из урла в списке
-                return Vacancy.objects.filter(specialty__code=category)   # поиск по свециализации
-            else:
-                raise Http404
-        else:  # вывод всех вакансий
-            return Vacancy.objects.all()
+            speciality = Speciality.objects.get(code=category)  # наличие специализации из урла в списке
+            return Vacancy.objects.filter(specialty=speciality)   # поиск по свециализации
+        except (Speciality.DoesNotExist, KeyError):
+            raise Http404
 
 
 class CompanyView(TemplateView):
