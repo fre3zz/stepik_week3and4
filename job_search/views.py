@@ -66,6 +66,7 @@ class CompanyView(TemplateView):
         context['companies_count'] = Company.objects.count()  # передается для перехода на следующую вакансию
         return context
 
+
 def custom_handler404(request, exception):
     return HttpResponseNotFound('Ой, что то сломалось... Простите извините! (Ошибка 404)')
 
