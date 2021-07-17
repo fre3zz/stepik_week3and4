@@ -23,7 +23,6 @@
             <div class="card-body px-4">
               <div class="row">
                 <div class="col-12 col-md-8 col-lg-9">
-
                  <a href="{% url 'vacancy' vacancy.pk %}" class="stretched-link"> <h2 class="h2 pb-2">{{ vacancy.title }}</h2></a>
                   <p class="mb-2">{{ vacancy.skills|switch_symb:",& •" }}</p>
                   <p>От {{ vacancy.salary_min|thous_sep }} до {{ vacancy.salary_max|thous_sep }} руб.</p>
