@@ -20,12 +20,14 @@
               <p class="alert alert-info" role="alert">
                 Информация о компании обновлена
               </p>
-              <form action="/echo" enctype="multipart/form-data">
+              <form method="post" action="{% url "create_company" %}" >
+                  {% csrf_token %}
                 <div class="row">
                   <div class="col-12 col-md-6">
                     <div class="form-group pb-2">
+
                       <label class="mb-2 text-dark" for="companyName">Название компании</label>
-                      <input class="form-control" type="text" value="Staffing Smarter" id="companyName">
+                      <input class="form-control" name="name" type="text" id="companyName">
                     </div>
                   </div>
                   <div class="col-12 col-md-6">
