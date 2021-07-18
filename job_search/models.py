@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
+from django.urls import reverse
 
 
 class Company(models.Model):
@@ -12,6 +13,9 @@ class Company(models.Model):
     employee_count = models.IntegerField()
     owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
+
+    def get_absolute_url(self):
+        return reverse('index')
 
 class Speciality(models.Model):
     code = models.CharField(max_length=100)
