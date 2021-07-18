@@ -10,11 +10,17 @@ class Company(models.Model):
     description = models.TextField()
     employee_count = models.IntegerField()
 
+    def __str__(self):
+        return self.name
+
 
 class Speciality(models.Model):
     code = models.CharField(max_length=100)
     title = models.CharField(max_length=100)
     picture = models.URLField(default='https://place-hold.it/100x60')
+
+    def __str__(self):
+        return self.title
 
 
 class Vacancy(models.Model):
@@ -26,3 +32,6 @@ class Vacancy(models.Model):
     published_at = models.DateTimeField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="vacancies")
     specialty = models.ForeignKey(Speciality, on_delete=models.CASCADE, related_name="vacancies")
+
+    def __str__(self):
+        return self.title
