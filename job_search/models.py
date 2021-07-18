@@ -10,7 +10,7 @@ class Company(models.Model):
     logo = models.URLField(default='https://place-hold.it/100x60')
     description = models.TextField()
     employee_count = models.IntegerField()
-    owner = models.OneToOneField(User)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
 
 class Speciality(models.Model):
