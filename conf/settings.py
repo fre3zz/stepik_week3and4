@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'job_search',
+    'accounts'
 
 ]
 
@@ -101,6 +102,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_REDIRECT_URL = '{% url "index" %}'
+LOGOUT_REDIRECT_URL = '{% url "accounts:login" %}'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
