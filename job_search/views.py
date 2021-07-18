@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError
 from django.shortcuts import get_object_or_404
 
@@ -21,8 +22,8 @@ class MainView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(MainView, self).get_context_data(**kwargs)
-        context['companies'] = Company.objects.all()
-        context['specialities'] = Speciality.objects.all()
+        context['companies'] = Company.objects.annotate(num_vacancies=Count('vacancies'))
+        context['specialities'] = Speciality.objects.annotate(num_vacancies=Count('vacancies'))
         return context
 
 

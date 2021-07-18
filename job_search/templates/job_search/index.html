@@ -36,7 +36,7 @@
             <img class="mx-auto d-block" src={{ speciality.picture }} width="80" height="80" alt="">
             <div class="card-body">
               <p class="card-text mb-2">{{ speciality.title }}</p>
-              <p class="card-text"><a href="{% url 'vacancies_by_cat' speciality.code %}">{{ speciality.vacancies.count|ru_pluralize:"вакансия,вакансии,вакансий" }}</a></p>
+              <p class="card-text"><a href="{% url 'vacancies_by_cat' speciality.code %}">{{ speciality.num_vacancies|ru_pluralize:"вакансия,вакансии,вакансий" }}</a></p>
             </div>
           </div>
         </div>{% endfor %}
@@ -53,7 +53,7 @@
               <img class="mx-auto d-block mw-100" src="{{ company.logo }}" alt='pic'>
             </a>
             <div class="card-body">
-              <p class="card-text">{{ company.name|capfirst }}<a href="{% url 'company' company.pk %}"> {{ company.vacancies.count|ru_pluralize:"вакансия,вакансии,вакансий" }}</a></p>
+              <p class="card-text">{{ company.name|capfirst }}<a href="{% url 'company' company.pk %}"> {{ company.num_vacancies|ru_pluralize:"вакансия,вакансии,вакансий" }}</a></p>
             </div>
           </div>
         </div>
