@@ -44,22 +44,18 @@ class VacanciesByCategoryView(ListView):
     context_object_name = 'vacancies'
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        # Тайтл в темплэйте. Если все вакансии - "все вакансии", или по категориям
+
         context = super(VacanciesByCategoryView, self).get_context_data(**kwargs)
-        try:
-            category = Speciality.objects.get(code=self.kwargs['category'])
-            context['title'] = category.title
-        except Speciality.DoesNotExist:
-            raise Http404
-        print(context)
+        category = get_object_or_404(Speciality, code=self.kwargs['category'])
+        context['title'] = category.title  # Тайтл в темплэйте.
         return context
 
     def get_queryset(self):
         try:
             category = self.kwargs['category']
-            speciality = Speciality.objects.get(code=category)  # наличие специализации из урла в списке
-            return Vacancy.objects.filter(specialty=speciality)   # поиск по свециализации
-        except (Speciality.DoesNotExist, KeyError):
+            speciality = get_object_or_404(Speciality, code=category)  # наличие специализации из урла в списке
+            return Vacancy.objects.filter(specialty=speciality)   # поиск по специализации
+        except KeyError:
             raise Http404
 
 
