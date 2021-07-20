@@ -13,15 +13,21 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import debug_toolbar
 from django.contrib import admin
 from django.urls import path, include
 
+import conf.settings
 from job_search.views import custom_handler404, custom_handler500
 
 handler404 = custom_handler404
 handler500 = custom_handler500
 
 urlpatterns = [
+
     path('admin/', admin.site.urls),
     path('', include('job_search.urls'))
 ]
+
+if conf.settings.DEBUG:
+    urlpatterns += path('__debug__/', include(debug_toolbar.urls)),
