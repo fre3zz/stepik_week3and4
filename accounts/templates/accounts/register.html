@@ -1,0 +1,10 @@
+{% extends 'accounts/auth_base.html' %}
+{% block content %}
+          <form method="post" action="{% url 'accounts:signup' %}">{% csrf_token %}
+            <table>{{ form.as_table }}</table>
+            <button type="submit">Send</button>
+        </form>
+
+
+         <div class="mt-4 text-center"><p>Есть аккаунт? <a href="{% url 'accounts:login' %}">Войдите!</a></p></div>
+{% endblock %}

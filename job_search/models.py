@@ -1,6 +1,8 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 # Create your models here.
+from django.urls import reverse
 
 
 class Company(models.Model):
@@ -9,10 +11,13 @@ class Company(models.Model):
     logo = models.URLField(default='https://place-hold.it/100x60')
     description = models.TextField()
     employee_count = models.IntegerField()
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('index')
 
 class Speciality(models.Model):
     code = models.CharField(max_length=100)
@@ -32,6 +37,14 @@ class Vacancy(models.Model):
     published_at = models.DateTimeField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="vacancies")
     specialty = models.ForeignKey(Speciality, on_delete=models.CASCADE, related_name="vacancies")
-
     def __str__(self):
         return self.title
+
+
+class Application(models.Model):
+    written_username = models.CharField(max_length=100)
+    written_phone = models.CharField(max_length=20)
+    written_cover_letter = models.TextField()
+    vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='applications')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
+

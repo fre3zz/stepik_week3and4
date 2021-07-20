@@ -26,7 +26,8 @@ handler500 = custom_handler500
 urlpatterns = [
 
     path('admin/', admin.site.urls),
-    path('', include('job_search.urls'))
+    path('', include('job_search.urls')),
+    path('accounts/', include('accounts.urls'))
 ]
 
 if conf.settings.DEBUG:

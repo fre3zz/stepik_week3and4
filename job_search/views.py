@@ -1,9 +1,9 @@
 from django.db.models import Count
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError
 from django.shortcuts import get_object_or_404
+from django.views.generic import TemplateView, ListView, FormView, CreateView
 
-from django.views.generic import TemplateView, ListView
-
+from .forms import CompanyCreateForm
 from .models import Vacancy, Company, Speciality
 
 
@@ -70,9 +70,28 @@ class CompanyView(TemplateView):
         return context
 
 
+class CompanyLetsstart(TemplateView):
+    template_name = 'job_search/company_create.html'
+
+
+class CompanyCreateView(CreateView):
+    template_name = 'job_search/company_edit.html'
+    model = Company
+    form_class = CompanyCreateForm
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwargs = super(CompanyCreateView, self).get_form_kwargs(*args, *kwargs)
+        kwargs['owner'] = self.request.user
+        print(self.request)
+        return kwargs
+
+
+
 def custom_handler404(request, exception):
     return HttpResponseNotFound('Ой, что то сломалось... Простите извините! (Ошибка 404)')
 
 
 def custom_handler500(request):
     return HttpResponseServerError('Ой, что то сломалось... Простите извините! (Ошибка 500)')
+
+
