@@ -1,3 +1,4 @@
+from django import conf
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -8,7 +9,7 @@ from django.urls import reverse
 class Company(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
-    logo = models.URLField(default='https://place-hold.it/100x60')
+    logo = models.ImageField(default='https://place-hold.it/100x60', upload_to=conf.settings.MEDIA_COMPANY_IMAGE_DIR)
     description = models.TextField()
     employee_count = models.IntegerField()
     owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)

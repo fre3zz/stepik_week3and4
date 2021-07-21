@@ -1,6 +1,7 @@
 from django.db.models import Count
-from django.http import Http404, HttpResponseNotFound, HttpResponseServerError
-from django.shortcuts import get_object_or_404
+from django.http import Http404, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.views import View
 from django.views.generic import TemplateView, ListView, FormView, CreateView
 
 from .forms import CompanyCreateForm
@@ -74,16 +75,39 @@ class CompanyLetsstart(TemplateView):
     template_name = 'job_search/company_create.html'
 
 
-class CompanyCreateView(CreateView):
-    template_name = 'job_search/company_edit.html'
-    model = Company
-    form_class = CompanyCreateForm
+class CompanyCreateView(View):
 
-    def get_form_kwargs(self, *args, **kwargs):
-        kwargs = super(CompanyCreateView, self).get_form_kwargs(*args, *kwargs)
-        kwargs['owner'] = self.request.user
-        print(self.request)
-        return kwargs
+
+    def get(self, request):
+        company_form = CompanyCreateForm()
+        context = {
+            'form': company_form,
+        }
+        return render(request, template_name='job_search/company_edit.html', context=context)
+
+    def post(self, request):
+
+        company_form = CompanyCreateForm(request.POST, request.FILES)
+        print(request.FILES)
+        print(company_form.data)
+        print(company_form.is_valid())
+        if company_form.is_valid():
+            data = company_form.cleaned_data
+
+            print(data)
+            print('12345')
+            if not Company.objects.get(owner=request.user):
+                Company.objects.create(
+                    name=data['name'],
+                    location=data['location'],
+                    logo=data['logo'],
+                    description=data['description'],
+                    employee_count=data['employee_count'],
+                    owner=request.user
+                )
+
+        return HttpResponseRedirect('create')
+
 
 
 

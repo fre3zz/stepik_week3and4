@@ -1,4 +1,5 @@
 {% extends 'job_search/base.html' %}
+{% load crispy_forms_tags %}
 {% block content %}
   <main class="container mt-3 pb-5">
     <div class="row mt-5">
@@ -21,13 +22,14 @@
                 Информация о компании обновлена
               </p>
 
-              <form method="post" action="{% url "create_company" %}" >
+              <form method="post" action="{% url "create_company" %}" enctype="multipart/form-data">
                   {% csrf_token %}
                   <table>
-                    {{ form.as_table }}
+                    {%  crispy form "bootstrap4" %}
                 </table>
                   <button type="submit">Submit</button>
               </form>
+
                 <div class="row">
                   <div class="col-12 col-md-6">
                     <div class="form-group pb-2">
