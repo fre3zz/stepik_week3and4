@@ -5,7 +5,7 @@ from django import forms
 from job_search.models import Company
 
 
-class CompanyCreateForm(forms.Form):
+class CompanyCreateForm(forms.ModelForm):
     #     name = models.CharField(max_length=100)
 #     location = models.CharField(max_length=100)
 #     logo = models.URLField(default='https://place-hold.it/100x60')
@@ -13,7 +13,10 @@ class CompanyCreateForm(forms.Form):
 #     employee_count = models.IntegerField()
 #     owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
-
+    class Meta:
+        model = Company
+        field = ['__all__']
+        exclude = ('owner',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,16 +24,5 @@ class CompanyCreateForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.label_class = 'mb-2 text-dark'
         self.helper.field_class = 'form-group pb-2'
-        self.helper.layout = Layout(
-            Fieldset(
-                "TITLE",
-                'name',
-                'logo'
-            )
-        )
 
-    name = forms.CharField(label="Название компании", max_length=100)
-    location = forms.CharField(label='География', max_length=100)
-    logo = forms.ImageField(required=False)
-    description = forms.CharField(label='Информация о компании')
-    employee_count = forms.IntegerField(label='Количество человек в компании')
+

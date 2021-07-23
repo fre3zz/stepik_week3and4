@@ -1,6 +1,8 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, ListView, FormView, CreateView
 
@@ -88,26 +90,27 @@ class CompanyCreateView(View):
     def post(self, request):
 
         company_form = CompanyCreateForm(request.POST, request.FILES)
-        print(request.FILES)
-        print(company_form.data)
-        print(company_form.is_valid())
+
         if company_form.is_valid():
-            data = company_form.cleaned_data
+            new_company = company_form.save(commit=True)
 
-            print(data)
-            print('12345')
-            if not Company.objects.get(owner=request.user):
-                Company.objects.create(
-                    name=data['name'],
-                    location=data['location'],
-                    logo=data['logo'],
-                    description=data['description'],
-                    employee_count=data['employee_count'],
-                    owner=request.user
-                )
+            new_company.owner = request.user
+            new_company.save()
 
-        return HttpResponseRedirect('create')
 
+        return HttpResponseRedirect(reverse('my_company'))
+
+
+class CompanyEditView(LoginRequiredMixin, View):
+    #Вью для просмотра и редактирования информации о компании
+
+    def get(self, request):
+        try:
+            company = Company.objects.get(owner=request.user)
+        except Company.DoesNotExist:
+            return HttpResponseRedirect(reverse('new_company'))
+        context = {'form': 'q'}
+        return render(request, template_name='job_search/company_edit.html', context=context)
 
 
 
