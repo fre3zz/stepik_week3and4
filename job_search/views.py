@@ -73,44 +73,61 @@ class CompanyView(TemplateView):
         return context
 
 
-class CompanyLetsstart(TemplateView):
+class CompanyLetsstart(LoginRequiredMixin, TemplateView):
     template_name = 'job_search/company_create.html'
 
 
-class CompanyCreateView(View):
-
+class CompanyCreateView(LoginRequiredMixin, View):
 
     def get(self, request):
         company_form = CompanyCreateForm()
         context = {
             'form': company_form,
         }
-        return render(request, template_name='job_search/company_edit.html', context=context)
+        return render(request, template_name='job_search/company_new.html', context=context)
 
     def post(self, request):
 
         company_form = CompanyCreateForm(request.POST, request.FILES)
 
         if company_form.is_valid():
-            new_company = company_form.save(commit=True)
-
+            new_company = company_form.save(commit=False)
             new_company.owner = request.user
             new_company.save()
-
 
         return HttpResponseRedirect(reverse('my_company'))
 
 
 class CompanyEditView(LoginRequiredMixin, View):
-    #Вью для просмотра и редактирования информации о компании
+    # Вью для просмотра и редактирования информации о компании
+    # При переходе на 'my_company' проверяет привязана ли компания к пользователю.
+    # Если компании нет, то кидает на 'new_company'
+    # Если есть, то на страницу редактирования компании
 
     def get(self, request):
         try:
             company = Company.objects.get(owner=request.user)
         except Company.DoesNotExist:
             return HttpResponseRedirect(reverse('new_company'))
-        context = {'form': 'q'}
+        company_form = CompanyCreateForm(instance=company)
+        context = {'form': company_form}
         return render(request, template_name='job_search/company_edit.html', context=context)
+
+    def post(self, request):
+        actual_company = get_object_or_404(Company, owner=request.user)
+        company_form = CompanyCreateForm(request.POST, request.FILES)
+
+        if company_form.is_valid():
+            new_company = company_form.save(commit=False)
+
+            actual_company.name = new_company.name
+            actual_company.logo = new_company.logo
+            actual_company.employee_count = new_company.employee_count
+            actual_company.description = new_company.description
+            actual_company.location = new_company.location
+            actual_company.save()
+
+        return HttpResponseRedirect(reverse('my_company'))
 
 
 

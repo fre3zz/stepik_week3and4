@@ -6,12 +6,6 @@ from job_search.models import Company
 
 
 class CompanyCreateForm(forms.ModelForm):
-    #     name = models.CharField(max_length=100)
-#     location = models.CharField(max_length=100)
-#     logo = models.URLField(default='https://place-hold.it/100x60')
-#     description = models.TextField()
-#     employee_count = models.IntegerField()
-#     owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
     class Meta:
         model = Company

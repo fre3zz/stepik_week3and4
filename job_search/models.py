@@ -20,6 +20,7 @@ class Company(models.Model):
     def get_absolute_url(self):
         return reverse('index')
 
+
 class Speciality(models.Model):
     code = models.CharField(max_length=100)
     title = models.CharField(max_length=100)
