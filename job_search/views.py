@@ -16,7 +16,6 @@ class VacancyView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(VacancyView, self).get_context_data(**kwargs)
         context['vacancy'] = get_object_or_404(Vacancy, pk=context['vacancy_pk'])  # объект по ключу из url
-        context['vacancies_count'] = Vacancy.objects.count()  # передается для перехода на следующую вакансию
         return context
 
 
@@ -69,7 +68,6 @@ class CompanyView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TemplateView, self).get_context_data(**kwargs)
         context['company'] = get_object_or_404(Company, pk=context['company_pk'])  # объект по ключу из url
-        context['companies_count'] = Company.objects.count()  # передается для перехода на следующую вакансию
         return context
 
 
@@ -103,14 +101,19 @@ class CompanyEditView(LoginRequiredMixin, View):
     # При переходе на 'my_company' проверяет привязана ли компания к пользователю.
     # Если компании нет, то кидает на 'new_company'
     # Если есть, то на страницу редактирования компании
-
+    # я не сообразил как заставить по дефолту указывать существующий url картинки,
+    # поэтому проверка на дефолтный урл logo_default_url
+    logo_default_url = '/media/https%3A/place-hold.it/100x60'
     def get(self, request):
         try:
             company = Company.objects.get(owner=request.user)
         except Company.DoesNotExist:
             return HttpResponseRedirect(reverse('new_company'))
         company_form = CompanyCreateForm(instance=company)
-        context = {'form': company_form}
+        context = {
+            'form': company_form,
+            'company': company
+        }
         return render(request, template_name='job_search/company_edit.html', context=context)
 
     def post(self, request):
@@ -119,12 +122,17 @@ class CompanyEditView(LoginRequiredMixin, View):
 
         if company_form.is_valid():
             new_company = company_form.save(commit=False)
-
-            actual_company.name = new_company.name
-            actual_company.logo = new_company.logo
-            actual_company.employee_count = new_company.employee_count
-            actual_company.description = new_company.description
-            actual_company.location = new_company.location
+            print(new_company.logo.url)
+            if new_company.name != actual_company.name:
+                actual_company.name = new_company.name
+            if new_company.logo.url != self.logo_default_url and new_company.logo != actual_company.logo:
+                actual_company.logo = new_company.logo
+            if new_company.employee_count != actual_company.employee_count:
+                actual_company.employee_count = new_company.employee_count
+            if new_company.description != actual_company.description:
+                actual_company.description = new_company.description
+            if new_company.location != actual_company.location:
+                actual_company.location = new_company.location
             actual_company.save()
 
         return HttpResponseRedirect(reverse('my_company'))

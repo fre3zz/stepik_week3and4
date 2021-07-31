@@ -12,7 +12,7 @@ class Company(models.Model):
     logo = models.ImageField(default='https://place-hold.it/100x60', upload_to=conf.settings.MEDIA_COMPANY_IMAGE_DIR)
     description = models.TextField()
     employee_count = models.IntegerField()
-    owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True, related_name='mycompany')
 
     def __str__(self):
         return self.name
