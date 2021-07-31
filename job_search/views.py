@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
+from django.forms import forms
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -82,7 +83,7 @@ class CompanyCreateView(LoginRequiredMixin, View):
         context = {
             'form': company_form,
         }
-        return render(request, template_name='job_search/company_new.html', context=context)
+        return render(request, template_name='job_search/company_edit.html', context=context)
 
     def post(self, request):
 
@@ -103,39 +104,56 @@ class CompanyEditView(LoginRequiredMixin, View):
     # Если есть, то на страницу редактирования компании
     # я не сообразил как заставить по дефолту указывать существующий url картинки,
     # поэтому проверка на дефолтный урл logo_default_url
-    logo_default_url = '/media/https%3A/place-hold.it/100x60'
+    logo_default_url = '/media/logo'
+
     def get(self, request):
         try:
             company = Company.objects.get(owner=request.user)
+            print(company.logo.url)
         except Company.DoesNotExist:
             return HttpResponseRedirect(reverse('new_company'))
         company_form = CompanyCreateForm(instance=company)
         context = {
             'form': company_form,
-            'company': company
+            'company': company  # для отображения логотипа
         }
         return render(request, template_name='job_search/company_edit.html', context=context)
 
     def post(self, request):
         actual_company = get_object_or_404(Company, owner=request.user)
         company_form = CompanyCreateForm(request.POST, request.FILES)
-
+        edited = False
         if company_form.is_valid():
             new_company = company_form.save(commit=False)
             print(new_company.logo.url)
             if new_company.name != actual_company.name:
                 actual_company.name = new_company.name
+                edited = True
             if new_company.logo.url != self.logo_default_url and new_company.logo != actual_company.logo:
                 actual_company.logo = new_company.logo
+                edited = True
             if new_company.employee_count != actual_company.employee_count:
                 actual_company.employee_count = new_company.employee_count
+                edited = True
             if new_company.description != actual_company.description:
                 actual_company.description = new_company.description
+                edited = True
             if new_company.location != actual_company.location:
                 actual_company.location = new_company.location
-            actual_company.save()
+                edited = True
+            if edited:
+                actual_company.save()
+            context = {
+                'form': company_form,
+                'company': actual_company,
+                'edited': edited
+            }
+            return render(request, template_name='job_search/company_edit.html', context=context)
 
-        return HttpResponseRedirect(reverse('my_company'))
+
+
+
+
 
 
 

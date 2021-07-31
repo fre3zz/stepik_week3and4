@@ -9,10 +9,11 @@ from django.urls import reverse
 class Company(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
-    logo = models.ImageField(default='https://place-hold.it/100x60', upload_to=conf.settings.MEDIA_COMPANY_IMAGE_DIR)
+    logo = models.ImageField(upload_to=conf.settings.MEDIA_COMPANY_IMAGE_DIR, default='logo')
     description = models.TextField()
     employee_count = models.IntegerField()
     owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True, related_name='mycompany')
+
 
     def __str__(self):
         return self.name
@@ -39,6 +40,7 @@ class Vacancy(models.Model):
     published_at = models.DateTimeField()
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="vacancies")
     specialty = models.ForeignKey(Speciality, on_delete=models.CASCADE, related_name="vacancies")
+
     def __str__(self):
         return self.title
 
