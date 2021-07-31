@@ -1,13 +1,14 @@
+from datetime import datetime
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
-from django.forms import forms
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import View
-from django.views.generic import TemplateView, ListView, FormView, CreateView
+from django.views.generic import TemplateView, ListView
 
-from .forms import CompanyCreateForm
+from .forms import CompanyCreateForm, VacancieCreateForm
 from .models import Vacancy, Company, Speciality
 
 
@@ -104,12 +105,11 @@ class CompanyEditView(LoginRequiredMixin, View):
     # Если есть, то на страницу редактирования компании
     # я не сообразил как заставить по дефолту указывать существующий url картинки,
     # поэтому проверка на дефолтный урл logo_default_url
-    logo_default_url = '/media/logo'
+    logo_default_url = 'logo'
 
     def get(self, request):
         try:
             company = Company.objects.get(owner=request.user)
-            print(company.logo.url)
         except Company.DoesNotExist:
             return HttpResponseRedirect(reverse('new_company'))
         company_form = CompanyCreateForm(instance=company)
@@ -124,37 +124,102 @@ class CompanyEditView(LoginRequiredMixin, View):
         company_form = CompanyCreateForm(request.POST, request.FILES)
         edited = False
         if company_form.is_valid():
-            new_company = company_form.save(commit=False)
-            print(new_company.logo.url)
-            if new_company.name != actual_company.name:
-                actual_company.name = new_company.name
-                edited = True
-            if new_company.logo.url != self.logo_default_url and new_company.logo != actual_company.logo:
-                actual_company.logo = new_company.logo
-                edited = True
-            if new_company.employee_count != actual_company.employee_count:
-                actual_company.employee_count = new_company.employee_count
-                edited = True
-            if new_company.description != actual_company.description:
-                actual_company.description = new_company.description
-                edited = True
-            if new_company.location != actual_company.location:
-                actual_company.location = new_company.location
-                edited = True
+            for field_name, field_value in company_form.cleaned_data.items():
+                # logo обрабатывается по другому, так как не поборол проблему с дефолтным...
+                # При обновлении формы через render logo скидывается на дефолтное
+                # соответственно, если дефолтное или поменялось, то меняем на новое
+                if field_value != getattr(actual_company, field_name) and field_name != 'logo':
+                    setattr(actual_company, field_name, field_value)
+                    edited = True
+                if field_name == 'logo' and field_value not in [self.logo_default_url, getattr(actual_company, field_name)]:
+                    print(f"{field_value}: {self.logo_default_url} : {getattr(actual_company, field_name)}")
+                    setattr(actual_company, field_name, field_value)
+                    edited = True
+
             if edited:
                 actual_company.save()
+
+            company_form = CompanyCreateForm(instance=actual_company)
             context = {
                 'form': company_form,
-                'company': actual_company,
+                'company': actual_company, # для отображения картинки
                 'edited': edited
             }
             return render(request, template_name='job_search/company_edit.html', context=context)
 
 
+class MyCompanyVacancies(LoginRequiredMixin, View):
+    template_name = 'job_search/myvacancies.html'
+
+    def get(self, request):
+        try:
+            company = Company.objects.get(owner=self.request.user)
+        except Company.DoesNotExist:
+            return HttpResponseRedirect(reverse('new_company'))
+
+        vacancies = Vacancy.objects.filter(company=company)
+        context = {
+            'vacancies': vacancies
+        }
+        return render(request, template_name=self.template_name, context=context)
 
 
+class MyCompanyNewVacancy(LoginRequiredMixin, View):
+    template = 'job_search/vacancy_edit.html'
+    # класс для создания новой вакансии
+
+    def get(self, request):
+        vacancy_form = VacancieCreateForm()
+        context = {
+            'vacancy_form': vacancy_form
+        }
+        return render(request, template_name=self.template, context=context)
+
+    def post(self, request):
+        vacancy_form = VacancieCreateForm(request.POST)
+        if vacancy_form.is_valid():
+            new_vacancy = vacancy_form.save(commit=False)
+            try:
+                company = Company.objects.get(owner=request.user)
+            except Company.DoesNotExist:
+                return HttpResponseRedirect(reverse('new_company'))
+            new_vacancy.company = company
+            new_vacancy.published_at = datetime.today()
+            new_vacancy.save()
+
+        return HttpResponseRedirect(reverse('my_vacancies'))
 
 
+class MyCompanyEditVacancy(LoginRequiredMixin, View):
+    template = 'job_search/vacancy_edit.html'
+
+    def get(self, request, vacancy_pk):
+        vacancy = get_object_or_404(Vacancy, id=vacancy_pk)
+        vacancy_form = VacancieCreateForm(instance=vacancy)
+        context = {
+            'vacancy_form': vacancy_form
+        }
+        return render(request, template_name=self.template, context=context)
+
+    def post(self, request, vacancy_pk):
+        vacancy_form = VacancieCreateForm(request.POST)
+        actual_vacancy = get_object_or_404(Vacancy, id=vacancy_pk)
+        edited = False
+        if vacancy_form.is_valid():
+            # Проверка на то, что нужно поменять в актуальной вакансии
+            # Если ничего не поменялось, то просто редирект, если менялось, то добавляется edited = True
+            for field_name, field_value in vacancy_form.cleaned_data.items():
+                if field_value != getattr(actual_vacancy, field_name):
+                    setattr(actual_vacancy, field_name, field_value)
+                    edited = True
+            if edited:
+                actual_vacancy.published_at = datetime.today()
+                actual_vacancy.save()
+        context = {
+            'vacancy_form': vacancy_form,
+            'edited': edited
+        }
+        return render(request, template_name=self.template, context=context)
 
 
 def custom_handler404(request, exception):
@@ -163,5 +228,3 @@ def custom_handler404(request, exception):
 
 def custom_handler500(request):
     return HttpResponseServerError('Ой, что то сломалось... Простите извините! (Ошибка 500)')
-
-

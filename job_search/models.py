@@ -14,7 +14,6 @@ class Company(models.Model):
     employee_count = models.IntegerField()
     owner = models.OneToOneField(User, on_delete=models.CASCADE, null=True, related_name='mycompany')
 
-
     def __str__(self):
         return self.name
 
@@ -51,4 +50,3 @@ class Application(models.Model):
     written_cover_letter = models.TextField()
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='applications')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
-
