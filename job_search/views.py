@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -56,8 +55,6 @@ class VacanciesView(ListView):
         context = super(VacanciesView, self).get_context_data(**kwargs)
         context['title'] = "Все вакансии"  # Тайтл в темплэйт
         return context
-
-
 
 
 class VacanciesByCategoryView(ListView):
@@ -164,7 +161,7 @@ class CompanyEditView(LoginRequiredMixin, View):
             company_form = CompanyCreateForm(instance=actual_company)
             context = {
                 'form': company_form,
-                'company': actual_company, # для отображения картинки
+                'company': actual_company,  # для отображения картинки
                 'edited': edited
             }
             return render(request, template_name='job_search/company_edit.html', context=context)
