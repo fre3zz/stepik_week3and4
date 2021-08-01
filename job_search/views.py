@@ -8,8 +8,8 @@ from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, ListView
 
-from .forms import CompanyCreateForm, VacancieCreateForm
-from .models import Vacancy, Company, Speciality
+from .forms import CompanyCreateForm, VacancieCreateForm, ApplicationCreateForm
+from .models import Vacancy, Company, Speciality, Application
 
 
 class VacancyView(TemplateView):
@@ -18,6 +18,8 @@ class VacancyView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(VacancyView, self).get_context_data(**kwargs)
         context['vacancy'] = get_object_or_404(Vacancy, pk=context['vacancy_pk'])  # объект по ключу из url
+        application_form = ApplicationCreateForm()
+        context['form'] = application_form
         return context
 
 
@@ -40,6 +42,8 @@ class VacanciesView(ListView):
         context = super(VacanciesView, self).get_context_data(**kwargs)
         context['title'] = "Все вакансии"  # Тайтл в темплэйт
         return context
+
+
 
 
 class VacanciesByCategoryView(ListView):
@@ -131,8 +135,12 @@ class CompanyEditView(LoginRequiredMixin, View):
                 if field_value != getattr(actual_company, field_name) and field_name != 'logo':
                     setattr(actual_company, field_name, field_value)
                     edited = True
-                if field_name == 'logo' and field_value not in [self.logo_default_url, getattr(actual_company, field_name)]:
-                    print(f"{field_value}: {self.logo_default_url} : {getattr(actual_company, field_name)}")
+                if field_name == 'logo' and field_value not in \
+                        [
+                            self.logo_default_url,
+                            getattr(actual_company, field_name)
+                        ]:
+                    actual_company.logo.storage.delete(actual_company.logo.path)
                     setattr(actual_company, field_name, field_value)
                     edited = True
 
@@ -157,7 +165,8 @@ class MyCompanyVacancies(LoginRequiredMixin, View):
         except Company.DoesNotExist:
             return HttpResponseRedirect(reverse('new_company'))
 
-        vacancies = Vacancy.objects.filter(company=company)
+        vacancies = Vacancy.objects.filter(company=company).annotate(num_applications=Count('applications'))
+
         context = {
             'vacancies': vacancies
         }

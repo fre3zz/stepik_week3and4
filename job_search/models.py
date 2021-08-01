@@ -24,7 +24,7 @@ class Company(models.Model):
 class Speciality(models.Model):
     code = models.CharField(max_length=100)
     title = models.CharField(max_length=100)
-    picture = models.URLField(default='https://place-hold.it/100x60')
+    picture = models.ImageField(upload_to=conf.settings.MEDIA_SPECIALITY_IMAGE_DIR)
 
     def __str__(self):
         return self.title
@@ -45,8 +45,8 @@ class Vacancy(models.Model):
 
 
 class Application(models.Model):
-    written_username = models.CharField(max_length=100)
-    written_phone = models.CharField(max_length=20)
-    written_cover_letter = models.TextField()
+    written_username = models.CharField(max_length=100, verbose_name="Ваше имя")
+    written_phone = models.CharField(max_length=20, verbose_name="Ваш телефон")
+    written_cover_letter = models.TextField(verbose_name="Сопроводительное письмо")
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='applications')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')

@@ -1,6 +1,6 @@
 from django import forms
 
-from job_search.models import Company, Vacancy
+from job_search.models import Company, Vacancy, Application
 
 
 class CompanyCreateForm(forms.ModelForm):
@@ -30,3 +30,15 @@ class VacancieCreateForm(forms.ModelForm):
             'specialty'
         ]
         exclude = ('company', 'published_at')
+
+
+class ApplicationCreateForm(forms.ModelForm):
+
+    class Meta:
+        model = Application
+        field = [
+            'written_username',
+            'written_phone',
+            'written_cover_letter'
+        ]
+        exclude = ('vacancy', 'user')
