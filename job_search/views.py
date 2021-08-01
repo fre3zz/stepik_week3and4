@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -21,6 +22,19 @@ class VacancyView(TemplateView):
         application_form = ApplicationCreateForm()
         context['form'] = application_form
         return context
+
+    def post(self, request, vacancy_pk):
+        application_form = ApplicationCreateForm(request.POST)
+        if application_form.is_valid():
+            new_application = application_form.save(commit=False)
+            new_application.vacancy = get_object_or_404(Vacancy, id=vacancy_pk)
+            new_application.user = request.user
+            new_application.save()
+            return HttpResponseRedirect(reverse('application_send'))
+
+
+def application_send(request):
+    return render(request, template_name='job_search/application_send.html')
 
 
 class MainView(TemplateView):
@@ -186,6 +200,7 @@ class MyCompanyNewVacancy(LoginRequiredMixin, View):
 
     def post(self, request):
         vacancy_form = VacancieCreateForm(request.POST)
+
         if vacancy_form.is_valid():
             new_vacancy = vacancy_form.save(commit=False)
             try:
@@ -205,8 +220,10 @@ class MyCompanyEditVacancy(LoginRequiredMixin, View):
     def get(self, request, vacancy_pk):
         vacancy = get_object_or_404(Vacancy, id=vacancy_pk)
         vacancy_form = VacancieCreateForm(instance=vacancy)
+        applications = Application.objects.filter(vacancy=vacancy)
         context = {
-            'vacancy_form': vacancy_form
+            'vacancy_form': vacancy_form,
+            'applications': applications
         }
         return render(request, template_name=self.template, context=context)
 

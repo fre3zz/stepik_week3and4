@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 from job_search.models import Company, Vacancy, Application
 
@@ -30,6 +31,13 @@ class VacancieCreateForm(forms.ModelForm):
             'specialty'
         ]
         exclude = ('company', 'published_at')
+
+    def clean(self):
+        super(VacancieCreateForm, self).clean()
+        salary_min = self.cleaned_data.get('salary_min')
+        salary_max = self.cleaned_data.get('salary_max')
+        if salary_min > salary_max:
+            self.add_error('salary_min', 'Min > Max')
 
 
 class ApplicationCreateForm(forms.ModelForm):
