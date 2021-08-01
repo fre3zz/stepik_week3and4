@@ -28,7 +28,7 @@
                     <div class="col-6 col-lg-8">
                       <a href="{% url 'my_vacancy_edit' vacancy.pk %}" class="mb-1">{{ vacancy.title }}</a>
                       <p class="mb-1">
-                        <span class="mr-4">{{ vacancy.salary_min|thous_sep }} - {{ vacancy.salary_max|thous_sep }}</span><a href="#" class="text-info">{{ vacancy.num_applications|ru_pluralize:"отклик,отклика,откликов" }}</a>
+                        <span class="mr-4">{{ vacancy.salary_min|thous_sep }} - {{ vacancy.salary_max|thous_sep }}</span><a href="{% url 'my_vacancy_edit' vacancy.pk %}#appl" class="text-info">{{ vacancy.num_applications|ru_pluralize:"отклик,отклика,откликов" }}</a>
                       </p>
                     </div>
                     <div class="col-6 col-lg-4 text-right">

@@ -3,7 +3,7 @@ from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.http import Http404, HttpResponseNotFound, HttpResponseServerError, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView, ListView
@@ -215,7 +215,16 @@ class MyCompanyEditVacancy(LoginRequiredMixin, View):
     template = 'job_search/vacancy_edit.html'
 
     def get(self, request, vacancy_pk):
-        vacancy = get_object_or_404(Vacancy, id=vacancy_pk)
+        try:
+            company = Company.objects.get(owner=request.user)
+        except Company.DoesNotExist:
+            return redirect('new_company')
+
+        try:
+            vacancy = Vacancy.objects.get(id=vacancy_pk, company=company)
+        except Vacancy.DoesNotExist:
+            return redirect('my_vacancies')
+
         vacancy_form = VacancieCreateForm(instance=vacancy)
         applications = Application.objects.filter(vacancy=vacancy)
         context = {
@@ -226,7 +235,15 @@ class MyCompanyEditVacancy(LoginRequiredMixin, View):
 
     def post(self, request, vacancy_pk):
         vacancy_form = VacancieCreateForm(request.POST)
-        actual_vacancy = get_object_or_404(Vacancy, id=vacancy_pk)
+        try:
+            company = Company.objects.get(owner=request.user)
+        except Company.DoesNotExist:
+            return redirect('new_company')
+
+        try:
+            actual_vacancy = Vacancy.objects.get(id=vacancy_pk, company=company)
+        except Vacancy.DoesNotExist:
+            return redirect('my_vacancies')
         edited = False
         if vacancy_form.is_valid():
             # Проверка на то, что нужно поменять в актуальной вакансии
